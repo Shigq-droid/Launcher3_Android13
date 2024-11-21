@@ -1,0 +1,50 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+android {
+    namespace 'com.android.launcher3'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 30
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation libs.core.ktx
+    compileOnly files('libs\\launcher_quickstep_log_protos_lite.jar')
+    compileOnly files('libs\\framework.jar')
+    implementation files('libs\\SystemUI-statsd.jar')
+    implementation files('libs\\SystemUISharedLib_Java.jar')
+    implementation files('libs\\SystemUISharedLib_Kotlin.jar')
+    api project(path: ':Launcher3ResLib')
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        Set<File> fileSet = options.bootstrapClasspath.getFiles();
+        List<File> newFileList = new ArrayList<>()
+        newFileList.add(new File("libs/framework.jar"))
+        newFileList.addAll(fileSet)
+        options.bootstrapClasspath = files(newFileList.toArray())
+    }
+}
